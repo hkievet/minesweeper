@@ -1,6 +1,6 @@
 export interface Minesweeper {
-  board: MinesweeperTile[][];
-  config: MinesweeperOptions;
+  tiles: MinesweeperTileType[][];
+  revealed: OverlayState[][];
 }
 
 export interface MinesweeperOptions {
@@ -9,12 +9,9 @@ export interface MinesweeperOptions {
   numBombs: number;
 }
 
-export interface MinesweeperTile {
-  revealed: boolean;
-  type: MinesweeperTileType;
-}
-
 type MinesweeperTileType = "mt" | "flag" | "bomb" | NumberTileType;
 type NumberTileType = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
+
+type OverlayState = "revealed" | "unrevealed" | "flagged";
 
 type = "empty" | "flag" | "bomb" | "number";

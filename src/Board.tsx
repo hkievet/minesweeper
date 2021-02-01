@@ -3,19 +3,21 @@ import * as React from "react";
 import BoardTile from "./BoardTile";
 import {
   Minesweeper,
-  MinesweeperTile,
   MinesweeperTileType,
   NumberTileType,
+  OverlayState,
 } from "./minesweeper";
-import MinesweeperTable from "./MineSweeperTable";
 
 export interface IBoard {}
 
 function makeEmptyBoard(
   height: number,
-  width: number
+  width: number,
+  fillType?: MinesweeperTileType
 ): MinesweeperTileType[][] {
-  let board = new Array(height).fill(0).map((_) => new Array(width).fill("mt"));
+  let board = new Array(height)
+    .fill(0)
+    .map((_) => new Array(width).fill(fillType ?? "mt"));
   return board;
 }
 
@@ -104,7 +106,6 @@ function paintNumbers(
   numMap.forEach((row, i) => {
     row.forEach((neighborBombCount, j) => {
       if (board[i][j] !== "bomb" && neighborBombCount > 0) {
-        console.log(neighborBombCount);
         board = addNumber(board, i, j, neighborBombCount);
       }
     });
@@ -124,30 +125,107 @@ function addNumber(
   return newTable;
 }
 
+function changeOverlay(
+  table: OverlayState[][],
+  row: number,
+  col: number,
+  newState: OverlayState
+): OverlayState[][] {
+  const newTable = [...table];
+  newTable[row] = [...table[row]];
+  newTable[row][col] = newState;
+  return newTable;
+}
+
+function getDimensions(arr: any[][]): [height: number, width: number] {
+  return [arr.length, arr[0].length];
+}
+
+function revealSurroundingEmpty(
+  board: MinesweeperTileType[][],
+  table: OverlayState[][],
+  row: number,
+  col: number
+): OverlayState[][] {
+  const [height, width] = getDimensions(board);
+  if (table[row][col] === "revealed") {
+    return table;
+  }
+  if (board[row][col] === "mt") {
+    table = changeOverlay(table, row, col, "revealed");
+    const walk = walkNeighbors(row, col, height, width);
+    walk.forEach(([i, j]) => {
+      table = revealSurroundingEmpty(board, table, i, j);
+    });
+  }
+  if (!isNaN(Number.parseInt(board[row][col]))) {
+    table = changeOverlay(table, row, col, "revealed");
+  }
+  return table;
+}
+
 export const Board: React.FC<IBoard> = (props) => {
-  const [board, setBoard] = React.useState<MinesweeperTileType[][]>(
-    makeBoard(10, 10, 10)
-  );
+  const [board, setBoard] = React.useState<Minesweeper>({
+    tiles: makeBoard(10, 10, 10),
+    revealed: new Array(10)
+      .fill(0)
+      .map((v) => new Array(10).fill("unrevealed")),
+  });
 
   const onClick = (row: number, col: number) => {
-    if (board[row][col] === "bomb") {
+    if (board.tiles[row][col] === "bomb") {
       alert("YOU LOSE");
-      let newBoard = makeBoard(10, 10, 10);
-      newBoard = addBombs(board, 10);
-      setBoard(newBoard);
+      setBoard({
+        tiles: makeBoard(10, 10, 10),
+        revealed: new Array(10)
+          .fill(0)
+          .map((v) => new Array(10).fill("unrevealed")),
+      });
+    } else if (board.tiles[row][col] === "mt") {
+      const revealed = revealSurroundingEmpty(
+        board.tiles,
+        board.revealed,
+        row,
+        col
+      );
+      setBoard({
+        ...board,
+        revealed: revealed,
+      });
+    } else {
+      setBoard({
+        ...board,
+        revealed: changeOverlay(board.revealed, row, col, "revealed"),
+      });
     }
+  };
+
+  const onRightClick = (row: number, col: number) => {
+    if (board.revealed[row][col] === "flagged") {
+      setBoard({
+        ...board,
+        revealed: changeOverlay(board.revealed, row, col, "unrevealed"),
+      });
+      return;
+    }
+    setBoard({
+      ...board,
+      revealed: changeOverlay(board.revealed, row, col, "flagged"),
+    });
   };
 
   return (
     <Box>
-      {board.map((row, i) => (
+      {board.tiles.map((row, i) => (
         <Flex key={`${i}`}>
           {row.map((cell, j) => {
             return (
               <BoardTile
+                visible={board.revealed[i][j]}
                 tile={cell}
                 key={`${i}_${j}`}
                 onClick={() => onClick(i, j)}
+                onRightClick={() => onRightClick(i, j)}
               />
             );
           })}

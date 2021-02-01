@@ -1,6 +1,6 @@
-import { Box, Center } from "@chakra-ui/react";
+import { Center } from "@chakra-ui/react";
 import * as React from "react";
-import { MinesweeperTile, MinesweeperTileType } from "../minesweeper";
+import { MinesweeperTileType } from "../minesweeper";
 
 export interface IEmojiPieceProps {
   tile: MinesweeperTileType;
@@ -40,11 +40,8 @@ export const EmojiPiece: React.FC<IEmojiPieceProps> = (props) => {
     <Center
       height="40px"
       width="40px"
-      backgroundColor="orange.100"
+      backgroundColor="white"
       border="1px"
-      _hover={{
-        bgGradient: "linear(to-r, red.500, yellow.500)",
-      }}
       as="button"
     >
       {getEmoji(props.tile)}
