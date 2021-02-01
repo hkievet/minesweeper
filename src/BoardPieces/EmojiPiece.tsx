@@ -1,12 +1,12 @@
 import { Box, Center } from "@chakra-ui/react";
 import * as React from "react";
-import { MinesweeperTile } from "../minesweeper";
+import { MinesweeperTile, MinesweeperTileType } from "../minesweeper";
 
 export interface IEmojiPieceProps {
-  tile: MinesweeperTile;
+  tile: MinesweeperTileType;
 }
 
-function getEmoji(tile: MinesweeperTile) {
+function getEmoji(tile: MinesweeperTileType) {
   switch (tile) {
     case "1":
       return "一";

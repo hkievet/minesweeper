@@ -9,7 +9,12 @@ export interface MinesweeperOptions {
   numBombs: number;
 }
 
-type MinesweeperTile = "mt" | "flag" | "bomb" | NumberTile;
-type NumberTile = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
+export interface MinesweeperTile {
+  revealed: boolean;
+  type: MinesweeperTileType;
+}
+
+type MinesweeperTileType = "mt" | "flag" | "bomb" | NumberTileType;
+type NumberTileType = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
 
 type = "empty" | "flag" | "bomb" | "number";
