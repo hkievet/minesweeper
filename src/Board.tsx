@@ -31,13 +31,6 @@ function makeBoard(
   return board;
 }
 
-function makeExampleBoard(
-  height: number,
-  width: number
-): MinesweeperTileType[][] {
-  return [["flag", "1", "2"]];
-}
-
 function addBombs(
   board: MinesweeperTileType[][],
   numBombs: number
